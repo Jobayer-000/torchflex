@@ -30,6 +30,7 @@ class DeviceManager:
         """Correct optimizer step for each backend."""
         if self.backend == "tpu":
             xm.optimizer_step(optimizer, barrier=barrier)
+            xm.mark_step()
         else:
             optimizer.step()
 
