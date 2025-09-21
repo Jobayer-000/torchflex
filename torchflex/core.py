@@ -1,7 +1,11 @@
 import torch
-import torch_xla.core.xla_model as xm
-import torch_xla.distributed.parallel_loader as pl
-import torch_xla.distributed.xla_multiprocessing as xmp
+try:
+    import torch_xla.core.xla_model as xm
+    import torch_xla.distributed.parallel_loader as pl
+    import torch_xla.distributed.xla_multiprocessing as xmp
+except Exception as e:
+    print("torch_xla importing failed")
+    print("Error:", e)
 
 
 class DeviceManager:
@@ -33,6 +37,11 @@ class DeviceManager:
             xm.mark_step()
         else:
             optimizer.step()
+    def is_master_ordinal(self):
+        if self.backend == "tpu":
+            return xm.is_master_ordinal()
+        else:
+            return True
 
     def loader(self, dataset, batch_size, shuffle=True, num_workers=4):
         """Correct dataloader for TPU/GPU/CPU."""
